@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copie Différée</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #111827;
+        color: #f3f4f6;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    .container {
+        background-color: #1f2937;
+        width: 100%;
+        max-width: 850px;
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        border: 1px solid #374151;
+    }
+    .badge {
+        display: inline-block;
+        background-color: #3b82f6;
+        color: #ffffff;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+    .display-area {
+        background-color: #111827;
+        border: 2px solid #4b5563;
+        border-radius: 12px;
+        padding: 30px;
+        min-height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .sentence-text {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #10b981;
+        line-height: 1.4;
+    }
+    .blank-state {
+        color: #9ca3af;
+        font-style: italic;
+        font-size: 1.4rem;
+    }
+    .timer {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #f59e0b;
+        height: 60px;
+        margin-bottom: 20px;
+    }
+    .controls {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+    button:hover:not(:disabled) {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+    }
+    button:disabled {
+        background-color: #4b5563;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+    #reveal-btn { background-color: #059669; }
+    #reveal-btn:hover:not(:disabled) { background-color: #047857; }
+    #next-btn { background-color: #d97706; }
+    #next-btn:hover:not(:disabled) { background-color: #b45309; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="badge" id="level-badge">Phrase 1 / 5</div>
+
+    <div class="display-area">
+        <div id="text-box" class="blank-state">Cliquez sur « Commencer » pour afficher la première phrase.</div>
+    </div>
+
+    <div class="timer" id="timer-box">--</div>
+
+    <div class="controls">
+        <button id="start-btn" onclick="runTask()">▶ Commencer (7s)</button>
+        <button id="reveal-btn" onclick="revealAnswer()" disabled>👁️ Révéler la réponse</button>
+        <button id="next-btn" onclick="nextQuestion()" disabled>⏭️ Phrase suivante</button>
+    </div>
+</div>
+
+<script>
+const data = [
+    { text: "Quand je joue au foot je peux porter un short bleu" },
+    { text: "En vacances j’aime porter des chaussettes blanches et des baskets rouges" },
+    { text: "Le weekend je peux porter un jean noir mais je porte un t-shirt rouge" },
+    { text: "Quand je vais à l’école je dois porter une jupe noire mais selon moi c’est moche" },
+    { text: "La semaine je dois porter un uniforme scolaire gris et une cravate bleue mais je trouve que c’est nul" }
+];
+
+let idx = 0;
+let timerId = null;
+
+function loadCurrent() {
+    document.getElementById("level-badge").innerText = `Phrase ${idx + 1} / ${data.length}`;
+    document.getElementById("text-box").className = "blank-state";
+    document.getElementById("text-box").innerText = "Cliquez sur « Commencer » pour observer la phrase.";
+    document.getElementById("timer-box").innerText = "--";
+    document.getElementById("timer-box").style.color = "#f59e0b";
+    
+    document.getElementById("start-btn").disabled = false;
+    document.getElementById("reveal-btn").disabled = true;
+    document.getElementById("next-btn").disabled = true;
+}
+
+function runTask() {
+    document.getElementById("start-btn").disabled = true;
+    
+    document.getElementById("text-box").className = "sentence-text";
+    document.getElementById("text-box").innerText = data[idx].text;
+    
+    let lookTime = 7;
+    document.getElementById("timer-box").innerText = `👀 ${lookTime}s`;
+    
+    timerId = setInterval(() => {
+        lookTime--;
+        if (lookTime > 0) {
+            document.getElementById("timer-box").innerText = `👀 ${lookTime}s`;
+        } else {
+            clearInterval(timerId);
+            startWaitPhase();
+        }
+    }, 1000);
+}
+
+function startWaitPhase() {
+    document.getElementById("text-box").className = "blank-state";
+    document.getElementById("text-box").innerText = "🔒 (Mémo en cours...)";
+    
+    let waitTime = 5;
+    document.getElementById("timer-box").style.color = "#ef4444";
+    document.getElementById("timer-box").innerText = `⏳ Attendez : ${waitTime}s`;
+    
+    timerId = setInterval(() => {
+        waitTime--;
+        if (waitTime > 0) {
+            document.getElementById("timer-box").innerText = `⏳ Attendez : ${waitTime}s`;
+        } else {
+            clearInterval(timerId);
+            document.getElementById("timer-box").style.color = "#10b981";
+            document.getElementById("timer-box").innerText = "✍️ ÉCRIVEZ !";
+            document.getElementById("reveal-btn").disabled = false;
+        }
+    }, 1000);
+}
+
+function revealAnswer() {
+    document.getElementById("text-box").className = "sentence-text";
+    document.getElementById("text-box").innerText = data[idx].text;
+    document.getElementById("reveal-btn").disabled = true;
+    document.getElementById("next-btn").disabled = false;
+}
+
+function nextQuestion() {
+    if (idx < data.length - 1) {
+        idx++;
+        loadCurrent();
+    } else {
+        document.getElementById("text-box").className = "sentence-text";
+        document.getElementById("text-box").innerText = "🎉 Bravo ! Vous avez terminé toutes les phrases !";
+        document.getElementById("level-badge").innerText = "Terminé";
+        document.getElementById("timer-box").innerText = "---";
+        document.getElementById("start-btn").disabled = true;
+        document.getElementById("reveal-btn").disabled = true;
+        document.getElementById("next-btn").disabled = true;
+    }
+}
+
+// Init
+loadCurrent();
+</script>
+
+</body>
+</html>
