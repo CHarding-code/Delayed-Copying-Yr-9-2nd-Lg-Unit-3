@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPI : Copie Différée - La mode et les vêtements</title>
+<title>Copie Différée</title>
 <style>
     * { box-sizing: border-box; }
     body {
@@ -27,7 +27,6 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         border: 1px solid #374151;
     }
-    h1 { color: #60a5fa; margin-top: 0; font-size: 2rem; }
     .badge {
         display: inline-block;
         background-color: #3b82f6;
@@ -36,15 +35,7 @@
         border-radius: 20px;
         font-weight: bold;
         font-size: 0.95rem;
-        margin-bottom: 15px;
-    }
-    .instructions {
-        background-color: #374151;
-        padding: 12px 20px;
-        border-radius: 8px;
-        color: #d1d5db;
-        font-size: 1rem;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
     .display-area {
         background-color: #111827;
@@ -110,12 +101,6 @@
 <body>
 
 <div class="container">
-    <h1>Copie Différée : La mode et les vêtements</h1>
-    
-    <div class="instructions">
-        <strong>Consigne :</strong> Cliquez sur « Commencer » pour observer la phrase pendant 7 secondes. Quand elle disparaît, <strong>attendez 5 secondes</strong> puis écrivez la phrase exacte sur votre mini-tableau !
-    </div>
-
     <div class="badge" id="level-badge">Phrase 1 / 5</div>
 
     <div class="display-area">
@@ -177,7 +162,7 @@ function runTask() {
 
 function startWaitPhase() {
     document.getElementById("text-box").className = "blank-state";
-    document.getElementById("text-box").innerText = "🔒 (Mémo en cours... Réflecteur en pause !)";
+    document.getElementById("text-box").innerText = "🔒 (Mémo en cours...)";
     
     let waitTime = 5;
     document.getElementById("timer-box").style.color = "#ef4444";
