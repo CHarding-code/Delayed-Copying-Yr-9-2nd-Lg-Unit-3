@@ -75,3 +75,152 @@
         height: 60px;
         margin-bottom: 20px;
     }
+    .controls {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    button {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+    button:hover:not(:disabled) {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+    }
+    button:disabled {
+        background-color: #4b5563;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+    #reveal-btn { background-color: #059669; }
+    #reveal-btn:hover:not(:disabled) { background-color: #047857; }
+    #next-btn { background-color: #d97706; }
+    #next-btn:hover:not(:disabled) { background-color: #b45309; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Copie Différée : La mode et les vêtements</h1>
+    
+    <div class="instructions">
+        <strong>Consigne :</strong> Cliquez sur « Commencer » pour observer la phrase pendant 7 secondes. Quand elle disparaît, <strong>attendez 5 secondes</strong> puis écrivez la phrase exacte sur votre mini-tableau !
+    </div>
+
+    <div class="badge" id="level-badge">Phrase 1 / 5</div>
+
+    <div class="display-area">
+        <div id="text-box" class="blank-state">Cliquez sur « Commencer » pour afficher la première phrase.</div>
+    </div>
+
+    <div class="timer" id="timer-box">--</div>
+
+    <div class="controls">
+        <button id="start-btn" onclick="runTask()">▶ Commencer (7s)</button>
+        <button id="reveal-btn" onclick="revealAnswer()" disabled>👁️ Révéler la réponse</button>
+        <button id="next-btn" onclick="nextQuestion()" disabled>⏭️ Phrase suivante</button>
+    </div>
+</div>
+
+<script>
+const data = [
+    { text: "Quand je joue au foot je peux porter un short bleu" },
+    { text: "En vacances j’aime porter des chaussettes blanches et des baskets rouges" },
+    { text: "Le weekend je peux porter un jean noir mais je porte un t-shirt rouge" },
+    { text: "Quand je vais à l’école je dois porter une jupe noire mais selon moi c’est moche" },
+    { text: "La semaine je dois porter un uniforme scolaire gris et une cravate bleue mais je trouve que c’est nul" }
+];
+
+let idx = 0;
+let timerId = null;
+
+function loadCurrent() {
+    document.getElementById("level-badge").innerText = `Phrase ${idx + 1} / ${data.length}`;
+    document.getElementById("text-box").className = "blank-state";
+    document.getElementById("text-box").innerText = "Cliquez sur « Commencer » pour observer la phrase.";
+    document.getElementById("timer-box").innerText = "--";
+    document.getElementById("timer-box").style.color = "#f59e0b";
+    
+    document.getElementById("start-btn").disabled = false;
+    document.getElementById("reveal-btn").disabled = true;
+    document.getElementById("next-btn").disabled = true;
+}
+
+function runTask() {
+    document.getElementById("start-btn").disabled = true;
+    
+    document.getElementById("text-box").className = "sentence-text";
+    document.getElementById("text-box").innerText = data[idx].text;
+    
+    let lookTime = 7;
+    document.getElementById("timer-box").innerText = `👀 ${lookTime}s`;
+    
+    timerId = setInterval(() => {
+        lookTime--;
+        if (lookTime > 0) {
+            document.getElementById("timer-box").innerText = `👀 ${lookTime}s`;
+        } else {
+            clearInterval(timerId);
+            startWaitPhase();
+        }
+    }, 1000);
+}
+
+function startWaitPhase() {
+    document.getElementById("text-box").className = "blank-state";
+    document.getElementById("text-box").innerText = "🔒 (Mémo en cours... Réflecteur en pause !)";
+    
+    let waitTime = 5;
+    document.getElementById("timer-box").style.color = "#ef4444";
+    document.getElementById("timer-box").innerText = `⏳ Attendez : ${waitTime}s`;
+    
+    timerId = setInterval(() => {
+        waitTime--;
+        if (waitTime > 0) {
+            document.getElementById("timer-box").innerText = `⏳ Attendez : ${waitTime}s`;
+        } else {
+            clearInterval(timerId);
+            document.getElementById("timer-box").style.color = "#10b981";
+            document.getElementById("timer-box").innerText = "✍️ ÉCRIVEZ !";
+            document.getElementById("reveal-btn").disabled = false;
+        }
+    }, 1000);
+}
+
+function revealAnswer() {
+    document.getElementById("text-box").className = "sentence-text";
+    document.getElementById("text-box").innerText = data[idx].text;
+    document.getElementById("reveal-btn").disabled = true;
+    document.getElementById("next-btn").disabled = false;
+}
+
+function nextQuestion() {
+    if (idx < data.length - 1) {
+        idx++;
+        loadCurrent();
+    } else {
+        document.getElementById("text-box").className = "sentence-text";
+        document.getElementById("text-box").innerText = "🎉 Bravo ! Vous avez terminé toutes les phrases !";
+        document.getElementById("level-badge").innerText = "Terminé";
+        document.getElementById("timer-box").innerText = "---";
+        document.getElementById("start-btn").disabled = true;
+        document.getElementById("reveal-btn").disabled = true;
+        document.getElementById("next-btn").disabled = true;
+    }
+}
+
+// Init
+loadCurrent();
+</script>
+
+</body>
+</html>
